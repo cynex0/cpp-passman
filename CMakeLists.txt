@@ -3,4 +3,4 @@ project(cpp_passman)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(cpp_passman main.cpp)
+add_executable(cpp_passman main.cpp user.cpp user.h vault.cpp vault.h account.cpp account.h)
