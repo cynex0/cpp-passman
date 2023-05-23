@@ -1,16 +1,16 @@
 #include <iostream>
 #include "password.h"
+#include "vault.h"
 
 int main() {
-    Password password(10000);
-    std::string userPassword = "secretpassword";
+    Password password;
+    std::string userPassword = "newPassword";
 
-    // Encrypt the password
-    password.encrypt(userPassword.c_str(), userPassword.length());
-    std::cout << password.getEncryptedPassword();
+    Vault vault(std::string("Vault 1"), 5, userPassword);
+    vault.writeToBin();
 
-    std::string decryptedPassword = password.decrypt();
-    std::cout << "\nDecrypted password: " << decryptedPassword << std::endl;
-
+    Vault vault1(vault.id);
+    if (vault1.enter(userPassword))
+        std::cout << "IN!!!!";
     return 0;
 }
