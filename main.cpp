@@ -1,6 +1,16 @@
 #include <iostream>
+#include "password.h"
+#include "vault.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    Password password;
+    std::string userPassword = "newPassword";
+
+    Vault vault(std::string("Vault 1"), 5, userPassword);
+    vault.writeToBin();
+
+    Vault vault1(vault.id);
+    if (vault1.enter(userPassword))
+        std::cout << "IN!!!!";
     return 0;
 }
