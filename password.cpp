@@ -5,8 +5,17 @@
 #include <stdexcept>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 
+/**
+ * @brief Constructor for the Password class.
+ * Initializes a Password object with the provided iteration count.
+ * Generates random salt and IV for encryption.
+ *
+ * @param itcount The iteration count for key derivation.
+ */
 Password::Password(int itcount):
+    ciphertext_len(0),
     iterationCount(itcount)
 {
     // generate salt and iv
@@ -14,7 +23,17 @@ Password::Password(int itcount):
     RAND_bytes(iv, IV_LENGTH);
 }
 
+/**
+ * @brief Constructor for the Password class.
+ * Initializes a Password object with the provided iteration count, encryption key, and salt.
+ * Generates a random IV for encryption.
+ *
+ * @param itcount The iteration count for key derivation.
+ * @param key_ The encryption key.
+ * @param salt The salt for key derivation.
+ */
 Password::Password(int itcount, unsigned char *key_, unsigned char *salt):
+    ciphertext_len(0),
     iterationCount(itcount)
 {
     std::memcpy(key, key_, KEY_LENGTH);
@@ -22,100 +41,122 @@ Password::Password(int itcount, unsigned char *key_, unsigned char *salt):
     RAND_bytes(iv, IV_LENGTH);
 }
 
+/**
+ * @brief Constructor for the Password class.
+ * Initializes a Password object with the provided iteration count, ciphertext, salt, and IV.
+ *
+ * @param itcount The iteration count for key derivation.
+ * @param ciphertext_ The ciphertext of the encrypted password.
+ * @param ciphertext_len_ The length of the ciphertext.
+ * @param salt The salt for key derivation.
+ * @param iv_ The initialization vector (IV) for encryption.
+ */
+Password::Password(int itcount, unsigned char *ciphertext_, int ciphertext_len_, unsigned char *salt, unsigned char *iv_):
+    ciphertext(ciphertext_),
+    ciphertext_len(ciphertext_len_),
+    iterationCount(itcount)
+{
+    std::memcpy(saltBytes, salt, SALT_LENGTH);
+    std::memcpy(iv, iv_, IV_LENGTH);
+}
+
+/**
+ * @brief Derives the encryption key using the provided plaintext and key derivation parameters.
+ * Uses the PKCS5_PBKDF2_HMAC_SHA1 function for key derivation.
+ *
+ * @param plaintext A pointer to the plaintext used for key derivation.
+ * @param plaintext_len The length of the plaintext.
+ */
 void Password::deriveKey(const char *plaintext, int plaintext_len) {
-    // Derive key using PBKDF2
+    if (iterationCount == 0) return;
     PKCS5_PBKDF2_HMAC_SHA1(plaintext, plaintext_len,
                            saltBytes, SALT_LENGTH,
                            iterationCount, KEY_LENGTH, key);
 }
 
+/**
+ * @brief Derives the encryption key using the provided plaintext and key derivation parameters.
+ * The derived key is stored in the specified output buffer.
+ * Uses the PKCS5_PBKDF2_HMAC_SHA1 function for key derivation.
+ *
+ * @param plaintext A pointer to the plaintext used for key derivation.
+ * @param plaintext_len The length of the plaintext.
+ * @param out A pointer to the output buffer to store the derived key.
+ */
 void Password::deriveKey(const char *plaintext, int plaintext_len, unsigned char *out) {
+    if (iterationCount == 0) return;
     PKCS5_PBKDF2_HMAC_SHA1(plaintext, plaintext_len,
                            saltBytes, SALT_LENGTH,
                            iterationCount, KEY_LENGTH, out);
 }
 
+/**
+ * @brief Encrypts the provided plaintext using the stored key and initialization vector (IV).
+ * The ciphertext is stored internally in the Password object.
+ *
+ * @param plaintext A pointer to the plaintext to be encrypted.
+ * @param plaintext_len The length of the plaintext.
+ */
 void Password::encrypt(const char *plaintext, int plaintext_len) {
     const EVP_CIPHER *cipher = EVP_aes_256_cbc();
     const int blockSize = EVP_CIPHER_block_size(cipher);
 
-    deriveKey(plaintext, plaintext_len);
-
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     EVP_EncryptInit_ex(ctx, cipher, NULL, key, iv);
 
-
     // Calculate the maximum ciphertext length
     int maxCiphertextLength = plaintext_len + blockSize;
-    ciphertext = (unsigned char*)malloc(maxCiphertextLength);
+    ciphertext = new unsigned char[maxCiphertextLength];
 
     int ciphertextLength = 0;
     EVP_EncryptUpdate(ctx, ciphertext, &ciphertextLength, (const unsigned char*)plaintext, plaintext_len);
+    ciphertext_len = ciphertextLength;
 
     int finalCiphertextLength = 0;
     EVP_EncryptFinal_ex(ctx, ciphertext + ciphertextLength, &finalCiphertextLength);
 
-    ciphertextLength += finalCiphertextLength;
+    finalCiphertextLength += ciphertextLength;
     EVP_CIPHER_CTX_free(ctx);
-
-    this->encryptedPassword = std::string(reinterpret_cast<char*>(ciphertext));
+    this->ciphertext_len = finalCiphertextLength;
 }
 
-std::string Password::decrypt() {
+/**
+ * @brief Decrypts the stored ciphertext using the stored key and initialization vector (IV).
+ * Returns the decrypted plaintext as a string.
+ *
+ * @return The decrypted plaintext.
+ */
+std::string Password::decrypt() const{
+    int len;
+    int plaintext_len;
+
     const EVP_CIPHER *cipher = EVP_aes_256_cbc();
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
 
     EVP_DecryptInit_ex(ctx, cipher, NULL, key, iv);
-    auto *decryptedPassword = (unsigned char*)malloc(strlen(reinterpret_cast<const char *>(ciphertext)));
-    int plaintextLen = 0;
+    auto plaintext_buffer = (unsigned char*)malloc(ciphertext_len);
 
-    EVP_DecryptUpdate(ctx, decryptedPassword, &plaintextLen,
-                      ciphertext, encryptedPassword.size());
+    EVP_DecryptUpdate(ctx, plaintext_buffer, &len, ciphertext, ciphertext_len);
 
-    int finalPlaintextLength = 0;
-    EVP_DecryptFinal_ex(ctx, decryptedPassword + plaintextLen, &finalPlaintextLength);
-    plaintextLen += finalPlaintextLength;
+    plaintext_len = len;
+
+    EVP_DecryptFinal_ex(ctx, plaintext_buffer + len, &len);
+    plaintext_len += len;
     EVP_CIPHER_CTX_free(ctx);
 
-    return {reinterpret_cast<const char *>(decryptedPassword)};
+    std::string decrypted_string(reinterpret_cast<const char*>(plaintext_buffer), plaintext_len);
+    free(plaintext_buffer);
+    return decrypted_string;
 }
 
-std::string Password::getEncryptedPassword() {
-    return this->encryptedPassword;
-}
-
-void Password::storeKey(const std::string& fname) {
-    std::ofstream ofs(fname, std::ios::binary);
-    if (!ofs)
-        throw std::runtime_error("Error writing file!");
-    ofs.write("PW", 2); // The header field to identify the file is `PW` in ASCII
-    ofs.write(reinterpret_cast<const char *>(&key), KEY_LENGTH);
-    ofs.write(reinterpret_cast<const char *>(&saltBytes), SALT_LENGTH);
-    ofs.close();
-}
-
-void Password::readKey(const std::string& fname) {
-    std::ifstream ifs(fname, std::ios::binary|std::ios::ate);
-    ifs.seekg(0);
-
-    char mg_str[2];
-    ifs.read(mg_str, 2);
-    ifs.read(reinterpret_cast<char *>(&key), KEY_LENGTH);
-    ifs.read(reinterpret_cast<char *>(&saltBytes), SALT_LENGTH);
-
-    ifs.close();
-}
-
+/**
+ * @brief Validates a password by deriving a key from the input and comparing it with the stored key.
+ *
+ * @param input The input password to validate.
+ * @return True if the input password is valid, False otherwise.
+ */
 bool Password::validatePassword(const std::string &input) {
     unsigned char inputKey[KEY_LENGTH];
     deriveKey(input.c_str(), input.size(), inputKey);
     return std::equal(std::begin(inputKey), std::end(inputKey), std::begin(key));
-}
-
-unsigned char *Password::getKey() {
-    return key;
-}
-
-unsigned char *Password::getSalt() {
-    return saltBytes;
 }
