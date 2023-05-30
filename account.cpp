@@ -8,6 +8,15 @@
 
 namespace fs = std::filesystem;
 
+/**
+ * @brief Constructor for the Account class.
+ * Initializes an Account object with the provided ID, user ID, and vault ID.
+ * Sets the file path for the account data and reads data from the binary file.
+ *
+ * @param id_ The ID of the account.
+ * @param user_id_ The ID of the user to whom the account belongs.
+ * @param vault_id_ The ID of the vault to which the account belongs.
+ */
 Account::Account(unsigned int id_, unsigned int user_id_, unsigned int vault_id_):
     name(), login(), id(id_), password()
 {
@@ -16,6 +25,18 @@ Account::Account(unsigned int id_, unsigned int user_id_, unsigned int vault_id_
     readFromBin();
 }
 
+/**
+ * @brief Constructor for the Account class.
+ * Initializes an Account object with the provided user ID, vault ID, name, login, and password.
+ * Generates a unique ID for the account.
+ * Sets the file path for the account data.
+ *
+ * @param user_id_ The ID of the user to whom the account belongs.
+ * @param vault_id_ The ID of the vault to which the account belongs.
+ * @param name_ The name of the account.
+ * @param login_ The login information of the account.
+ * @param password_ The password of the account.
+ */
 Account::Account(unsigned int user_id_, unsigned int vault_id_, std::string name_, std::string login_, Password password_):
     name(std::move(name_)),
     login(std::move(login_)),
@@ -27,6 +48,12 @@ Account::Account(unsigned int user_id_, unsigned int vault_id_, std::string name
                 std::to_string(id) + ".acc";
 }
 
+/**
+ * @brief Writes account data to a binary file.
+ * The data includes the account ID, name, login, encrypted password, iteration count, salt, and IV.
+ * The file is created or truncated if it already exists.
+ * @throws std::runtime_error if an error occurs while writing the file.
+ */
 void Account::writeToBin() {
     std::ofstream ofs(file_path, std::ios::binary|std::ios::trunc);
     if (!ofs.is_open())
@@ -61,6 +88,11 @@ void Account::writeToBin() {
     ofs.close();
 }
 
+/**
+ * @brief Reads account data from a binary file.
+ * The data includes the account ID, name, login, encrypted password, iteration count, salt, and IV.
+ * @throws std::runtime_error if an error occurs while reading the file.
+ */
 void Account::readFromBin() {
     std::ifstream ifs(file_path, std::ios::binary);
     if (!ifs.is_open())
@@ -124,6 +156,14 @@ std::ostream& operator<<(std::ostream &os, Account &acc) {
     return os;
 }
 
+/**
+ * @brief Gets the decrypted password using the provided master key.
+ * The master key is used to derive the encryption key for the password.
+ *
+ * @param master A pointer to the master key.
+ * @param master_len The length of the master key.
+ * @return The decrypted password as a string.
+ */
 std::string Account::getDecryptedPassword(const char *master, int master_len) {
     password.deriveKey(master, master_len);
     return password.decrypt();

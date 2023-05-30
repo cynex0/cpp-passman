@@ -15,12 +15,12 @@ void writeTest() {
         User user("User " + std::to_string(i));
         user.writeToBin();
 
-        for (int j{0}; j < 1; j++) {
-            Vault vault(user.id, "My Vault " + std::to_string(j), 10, masterPassword);
+        for (int j{0}; j < 3; j++) {
+            Vault vault(user.id, "My Vault " + std::to_string(i)+std::to_string(j), 10+i, masterPassword);
             vault.writeToBin();
 
-            for (int k{0}; k < 1; k++) {
-                Account acc(user.id, vault.id, "Important Password", "admin"+std::to_string(k), vault.createNewPassword(userPassword));
+            for (int k{0}; k < 2; k++) {
+                Account acc(user.id, vault.id, "Important Password", "admin"+std::to_string(i)+std::to_string(j)+std::to_string(k), vault.createNewPassword(userPassword));
                 acc.writeToBin();
             }
         }
@@ -66,7 +66,7 @@ int main() {
 
 
     App app;
-    app.printMenu();
+    app.run();
     std::cout << "Goodbye!";
     return 0;
 }
