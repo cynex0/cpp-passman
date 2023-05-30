@@ -41,7 +41,7 @@ To build and run Passman, follow these steps:
 
 1. Clone the repository:
    ```shell
-   git clone https://github.com/your-username/password-manager.git
+   git clone https://github.com/cynex0/cpp-passman.git
    ```
    
 2. Create a build directory:
