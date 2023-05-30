@@ -2,6 +2,13 @@
 
 A simple password manager project written in C++.
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+
 ## Introduction
 
 This is a C++ password manager project designed to securely store and manage passwords. 
