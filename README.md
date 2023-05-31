@@ -2,7 +2,8 @@
 
 A simple password manager project written in C++.
 
-**__NOTE:__ This version of Passman is not final. In the current version, passwords are stored in plaintext.**
+## A note about current state
+**This version of Passman is not final. In the current version, passwords are stored in plaintext.**
 
 The encryption/decryption functionality is implemented and works correctly on branch dev-menu, 
 but only in readTest() & writeTest() functions (main.cpp). Implementation was not suitable for binary file storage and produced inconsistent behaviour.
