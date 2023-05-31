@@ -57,7 +57,9 @@ To build and run Passman, follow these steps:
 
 1. Clone the repository:
    ```shell
+   mkdir repos && cd repos
    git clone https://github.com/cynex0/cpp-passman.git
+   cd cpp-passman
    ```
    
 2. Create a build directory:
