@@ -333,7 +333,17 @@ void App::run() {
                     std::cout << "Enter desired master password: ";
                     std::getline(std::cin, new_password);
 
-                    Vault new_vault(current_user.id, new_vault_name, 0, new_password);
+                    unsigned short sl;
+                    std::string sl_buf;
+                    std::cout << "Enter desired security level\n(0-20, 10 recommended):";
+                    std::getline(std::cin, sl_buf);
+                    sl = stoul(sl_buf);
+                    if (sl > 20) {
+                        message = "Invalid security level! Please try again!";
+                        break;
+                    }
+
+                    Vault new_vault(current_user.id, new_vault_name, sl, new_password);
                     new_vault.writeToBin();
                     vaults.emplace_back(new_vault);
 

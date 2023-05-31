@@ -11,7 +11,7 @@ void writeTest() {
     std::string masterPassword = "Super_Ultra-Mega/seCrEtPaSsWorD!";
     std::string userPassword = "secretPassword";
     App app;
-    for (int i{0}; i < 2; i++) {
+    for (unsigned short i{0}; i < 2; i++) {
         User user("User " + std::to_string(i));
         user.writeToBin();
 

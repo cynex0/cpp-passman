@@ -55,7 +55,7 @@ void User::writeToBin() {
     ofs.write(reinterpret_cast<const char *>(&id), 4);
     ofs.write(reinterpret_cast<const char *>(&time_created), sizeof(std::time_t));
     ofs.write(reinterpret_cast<const char *>(&time_last_accessed), sizeof(std::time_t));
-    const uint8_t name_size = name.size();
+    const auto name_size = static_cast<uint8_t>(name.size());
     ofs.write(reinterpret_cast<const char *>(&name_size), 1);
     ofs.write(name.c_str(), name_size);
 }
@@ -80,7 +80,7 @@ void User::readFromBin() {
     ifs.read(reinterpret_cast<char *>(&time_created), sizeof(std::time_t));
     ifs.read(reinterpret_cast<char *>(&time_last_accessed), sizeof(std::time_t));
 
-    uint8_t name_size = name.size();
+    auto name_size = static_cast<uint8_t>(name.size());
     ifs.read(reinterpret_cast<char *>(&name_size), 1);
     char* buffer = new char[name_size+1];
     ifs.read(buffer, name_size);
@@ -122,9 +122,14 @@ void User::updateTimeLastAccessed() {
  * @return A C-style string representing the last access time of the user.
  */
 char* User::getTimeLastAccessed() {
-    struct tm* timeinfo;
-    timeinfo = localtime(&time_last_accessed);
-    return asctime(timeinfo);
+    struct tm timeinfo{};
+    localtime_s(&timeinfo, &time_last_accessed);
+
+    const int bufferSize = 26; // Length of the time string returned by asctime_s
+    char* buffer = new char[bufferSize]; // buffer to store the time string
+
+    asctime_s(buffer, bufferSize, &timeinfo);
+    return buffer;
 }
 
 /**
@@ -134,8 +139,13 @@ char* User::getTimeLastAccessed() {
  * @return A C-style string representing the creation time of the user.
  */
 char* User::getTimeCreated() {
-    struct tm* timeinfo;
-    timeinfo = localtime(&time_created);
-    return asctime(timeinfo);
+    struct tm timeinfo{};
+    localtime_s(&timeinfo, &time_last_accessed);
+
+    const int bufferSize = 26; // Length of the time string returned by asctime_s
+    char* buffer = new char[bufferSize]; // buffer to store the time string
+
+    asctime_s(buffer, bufferSize, &timeinfo);
+    return buffer;
 }
 

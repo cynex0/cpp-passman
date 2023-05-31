@@ -67,9 +67,8 @@ Password::Password(int itcount, unsigned char *ciphertext_, int ciphertext_len_,
  * @param plaintext A pointer to the plaintext used for key derivation.
  * @param plaintext_len The length of the plaintext.
  */
-void Password::deriveKey(const char *plaintext, int plaintext_len) {
-    if (iterationCount == 0) return;
-    PKCS5_PBKDF2_HMAC_SHA1(plaintext, plaintext_len,
+void Password::deriveKey(const char *plaintext, size_t plaintext_len) {
+    PKCS5_PBKDF2_HMAC_SHA1(plaintext, static_cast<int>(plaintext_len),
                            saltBytes, SALT_LENGTH,
                            iterationCount, KEY_LENGTH, key);
 }
@@ -83,9 +82,8 @@ void Password::deriveKey(const char *plaintext, int plaintext_len) {
  * @param plaintext_len The length of the plaintext.
  * @param out A pointer to the output buffer to store the derived key.
  */
-void Password::deriveKey(const char *plaintext, int plaintext_len, unsigned char *out) {
-    if (iterationCount == 0) return;
-    PKCS5_PBKDF2_HMAC_SHA1(plaintext, plaintext_len,
+void Password::deriveKey(const char *plaintext, size_t plaintext_len, unsigned char *out) {
+    PKCS5_PBKDF2_HMAC_SHA1(plaintext, static_cast<int>(plaintext_len),
                            saltBytes, SALT_LENGTH,
                            iterationCount, KEY_LENGTH, out);
 }
@@ -97,9 +95,10 @@ void Password::deriveKey(const char *plaintext, int plaintext_len, unsigned char
  * @param plaintext A pointer to the plaintext to be encrypted.
  * @param plaintext_len The length of the plaintext.
  */
-void Password::encrypt(const char *plaintext, int plaintext_len) {
+void Password::encrypt(const char *plaintext, size_t plaintext_len_) {
     const EVP_CIPHER *cipher = EVP_aes_256_cbc();
     const int blockSize = EVP_CIPHER_block_size(cipher);
+    int plaintext_len = static_cast<int>(plaintext_len_);
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     EVP_EncryptInit_ex(ctx, cipher, NULL, key, iv);
@@ -109,7 +108,7 @@ void Password::encrypt(const char *plaintext, int plaintext_len) {
     ciphertext = new unsigned char[maxCiphertextLength];
 
     int ciphertextLength = 0;
-    EVP_EncryptUpdate(ctx, ciphertext, &ciphertextLength, (const unsigned char*)plaintext, plaintext_len);
+    EVP_EncryptUpdate(ctx, ciphertext, &ciphertextLength, reinterpret_cast<const unsigned char*>(&plaintext), plaintext_len);
     ciphertext_len = ciphertextLength;
 
     int finalCiphertextLength = 0;

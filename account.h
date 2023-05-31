@@ -13,7 +13,7 @@ public:
     void writeToBin();
     void readFromBin();
 
-    std::string getDecryptedPassword(const char *master, int master_len);
+    std::string getDecryptedPassword(const char *master, size_t master_len);
     friend std::ostream& operator<<(std::ostream& os, Account& acc);
 
 private:

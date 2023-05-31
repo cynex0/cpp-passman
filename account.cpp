@@ -3,10 +3,7 @@
 #include <utility>
 #include <openssl/rand.h>
 #include <fstream>
-#include <filesystem>
 #include <iostream>
-
-namespace fs = std::filesystem;
 
 /**
  * @brief Constructor for the Account class.
@@ -41,7 +38,7 @@ Account::Account(unsigned int user_id_, unsigned int vault_id_, std::string name
     name(std::move(name_)),
     login(std::move(login_)),
     id(0),
-    password(std::move(password_))
+    password(password_)
 {
     RAND_bytes(reinterpret_cast<unsigned char*>(&id), sizeof(id));
     file_path = "data/" + std::to_string(user_id_) + "/" + std::to_string(vault_id_) + "/" +
@@ -64,12 +61,12 @@ void Account::writeToBin() {
     ofs.write(reinterpret_cast<const char *>(&id), 4);
 
     // write name
-    const uint8_t name_size = name.size();
+    const auto name_size = static_cast<uint8_t>(name.size());
     ofs.write(reinterpret_cast<const char *>(&name_size), 1);
     ofs.write(name.c_str(), name_size);
 
     // write login
-    const uint8_t login_size = login.size();
+    const auto login_size = static_cast<uint8_t>(login.size());
     ofs.write(reinterpret_cast<const char *>(&login_size), 1);
     ofs.write(login.c_str(), login_size);
 
@@ -164,7 +161,7 @@ std::ostream& operator<<(std::ostream &os, Account &acc) {
  * @param master_len The length of the master key.
  * @return The decrypted password as a string.
  */
-std::string Account::getDecryptedPassword(const char *master, int master_len) {
+std::string Account::getDecryptedPassword(const char *master, size_t master_len) {
     password.deriveKey(master, master_len);
     return password.decrypt();
 }

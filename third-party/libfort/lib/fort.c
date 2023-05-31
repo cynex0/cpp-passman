@@ -40,6 +40,8 @@ SOFTWARE.
 
 #if defined(_MSC_VER)
 #define _CRT_SECURE_NO_WARNINGS /* To disable warnings for unsafe functions */
+#pragma warning(disable : 4267)
+#pragma warning(disable : 4245)
 #endif
 
 #include <stddef.h>
@@ -226,18 +228,18 @@ wchar_t *fort_wcsdup(const wchar_t *str);
 
 
 FT_INTERNAL
-int print_n_strings(f_conv_context_t *cntx, size_t n, const char *str);
+size_t print_n_strings(f_conv_context_t *cntx, size_t n, const char *str);
 
 
 FT_INTERNAL
-int ft_nprint(f_conv_context_t *cntx, const char *str, size_t strlen);
+size_t ft_nprint(f_conv_context_t *cntx, const char *str, size_t strlen);
 #ifdef FT_HAVE_WCHAR
 FT_INTERNAL
-int ft_nwprint(f_conv_context_t *cntx, const wchar_t *str, size_t strlen);
+size_t ft_nwprint(f_conv_context_t *cntx, const wchar_t *str, size_t strlen);
 #endif /* FT_HAVE_WCHAR */
 #ifdef FT_HAVE_UTF8
 FT_INTERNAL
-int ft_nu8print(f_conv_context_t *cntx, const void *beg, const void *end);
+size_t ft_nu8print(f_conv_context_t *cntx, const void *beg, const void *end);
 #endif /* FT_HAVE_UTF8 */
 
 
@@ -4041,7 +4043,7 @@ int u8nprint_n_strings(void *buf, size_t length, size_t n, const void *str);
 
 
 FT_INTERNAL
-int print_n_strings(f_conv_context_t *cntx, size_t n, const char *str)
+size_t print_n_strings(f_conv_context_t *cntx, size_t n, const char *str)
 {
     int cod_w;
     int raw_written;
@@ -4082,7 +4084,7 @@ int print_n_strings(f_conv_context_t *cntx, size_t n, const char *str)
 }
 
 FT_INTERNAL
-int ft_nprint(f_conv_context_t *cntx, const char *str, size_t strlen)
+size_t ft_nprint(f_conv_context_t *cntx, const char *str, size_t strlen)
 {
     if (cntx->raw_avail + 1/* for 0 */ < strlen)
         return -1;
@@ -4095,7 +4097,7 @@ int ft_nprint(f_conv_context_t *cntx, const char *str, size_t strlen)
 }
 
 #ifdef FT_HAVE_WCHAR
-int ft_nwprint(f_conv_context_t *cntx, const wchar_t *str, size_t strlen)
+size_t ft_nwprint(f_conv_context_t *cntx, const wchar_t *str, size_t strlen)
 {
     if (cntx->raw_avail + 1/* for 0 */ < strlen)
         return -1;
@@ -4115,7 +4117,7 @@ int ft_nwprint(f_conv_context_t *cntx, const wchar_t *str, size_t strlen)
 
 #ifdef FT_HAVE_UTF8
 FT_INTERNAL
-int ft_nu8print(f_conv_context_t *cntx, const void *beg, const void *end)
+size_t ft_nu8print(f_conv_context_t *cntx, const void *beg, const void *end)
 {
     const char *bc = (const char *)beg;
     const char *ec = (const char *)end;

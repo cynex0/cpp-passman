@@ -15,7 +15,7 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 option(FORT_ENABLE_ASTYLE "Enable astyle" OFF)
 option(FORT_ENABLE_WCHAR "Enable wchar support" ON)
 option(FORT_ENABLE_UTF8 "Enable utf8 support" ON)
-option(FORT_ENABLE_TESTING "Enables building tests and examples" ON)
+option(FORT_ENABLE_TESTING "Enables building tests and examples" OFF)
 set(FORT_BUILD_TYPE "common" CACHE STRING "Build type")
 
 set_property(CACHE FORT_BUILD_TYPE PROPERTY STRINGS
@@ -46,8 +46,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ------------------------------------------------------------------------------
 
 if("${FORT_COMPILER}" STREQUAL "MSVC")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W4")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W4")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W3")
 else()
     set(ADDITIONAL_WARNINGS "\
         -Wall \
@@ -68,8 +68,8 @@ else()
             -Wlogical-op")
     endif()
 
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ADDITIONAL_WARNINGS} -Wpedantic")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADDITIONAL_WARNINGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ADDITIONAL_WARNINGS} -Wpedantic -Wno-narrowing")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ADDITIONAL_WARNINGS} -Wno-narrowing")
 endif()
 
 # ------------------------------------------------------------------------------

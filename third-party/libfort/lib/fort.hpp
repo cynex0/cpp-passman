@@ -573,7 +573,7 @@ public:
         stream_ << arg;
         if (stream_.tellp() >= 0 && !is_manip) {
 #ifdef FT_HAVE_UTF8
-            if (TT == table_type::character) {
+            if constexpr (TT == table_type::character) {
                 ft_nwrite(table_, 1, stream_.str().c_str());
             } else {
                 ft_u8nwrite(table_, 1, (const void *)stream_.str().c_str());

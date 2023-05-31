@@ -3,7 +3,6 @@
 #include <openssl/rand.h>
 #include <fstream>
 #include "vault.h"
-#include "account.h"
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -68,7 +67,7 @@ Vault::Vault(unsigned int user_id_, std::string name_, unsigned short sl, const 
     dir_path = "data/" + std::to_string(user_id_) + "/" + std::to_string(id);
     fs::create_directory(dir_path);
 
-    masterPassword.deriveKey(pass.c_str(), pass.length());
+    masterPassword.deriveKey(pass.c_str(), pass.size());
 }
 
 /**
@@ -89,7 +88,7 @@ void Vault::writeToBin() {
     ofs.write("VLT", 3); // The header field to identify the file is `VLT` in ASCII
     ofs.write(reinterpret_cast<const char *>(&id), 4);
     ofs.write(reinterpret_cast<const char *>(&security_level), 2);
-    const uint8_t name_size = name.size();
+    const auto name_size = static_cast<uint8_t>(name.size());
     ofs.write(reinterpret_cast<const char *>(&name_size), 1);
     ofs.write(name.c_str(), name_size);
     ofs.write(reinterpret_cast<const char *>(masterPassword.key), Password::KEY_LENGTH);
@@ -109,7 +108,7 @@ void Vault::readFromBin() {
     ifs.read(reinterpret_cast<char *>(&id), 4);
     ifs.read(reinterpret_cast<char *>(&security_level), 2);
 
-    uint8_t name_size = name.size();
+    auto name_size = static_cast<uint8_t>(name.size());
     ifs.read(reinterpret_cast<char *>(&name_size), 1);
     char* buffer = new char[name_size+1];
     ifs.read(buffer, name_size);
