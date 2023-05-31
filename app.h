@@ -19,6 +19,7 @@ private:
     void printUserTable(std::vector<User> &users);
     void printVaultTable(std::vector<Vault> &vaults);
     void printAccountTable(std::vector<Account> &accounts, bool show_passwords, const std::string &master_password);
+    void printAccountTablePlaintextPasswords(std::vector<Account> &accounts, bool show_passwords);
     std::vector<User> readUsers();
     std::vector<Vault> readVaults(unsigned int uid);
     std::vector<Account> readAccounts(unsigned int uid, unsigned int vid);

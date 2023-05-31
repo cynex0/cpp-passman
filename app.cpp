@@ -188,6 +188,33 @@ void App::printAccountTable(std::vector<Account> &accounts, bool show_passwords,
 }
 
 /**
+ * Prints a formatted table displaying information about each account.
+ *
+ * @param accounts         A reference to a vector of Account objects.
+ * @param show_passwords   A boolean indicating whether to display the account passwords or mask them.
+ *
+ * The function prints a table with the following columns:
+ *   - Name: The name of the account.
+ *   - Login: The login username for the account.
+ *   - Password: The password for the account. If show_passwords is true, the actual password is displayed.
+ *               Otherwise, the password is masked with asterisks ("********").
+ * This is a temporary function that uses plaintext password storage. To be removed when encryption works.
+ */
+void App::printAccountTablePlaintextPasswords(std::vector<Account> &accounts, bool show_passwords) {
+    fort::char_table table;
+    table << fort::header << "Name" << "Login" << "Password" << fort::endr;
+    for (auto acc : accounts){
+        std::string password;
+        if (show_passwords){
+            password = acc.getPassword();
+        }
+        else password = "********";
+        table << acc.name << acc.login << password << fort::endr;
+    }
+    std::cout << table.to_string() << std::endl;
+}
+
+/**
  * Displays a menu and handles user interaction based on the current state.
  *
  * The function presents different options and performs corresponding actions based on the current state.
@@ -371,7 +398,7 @@ void App::run() {
                 accounts = readAccounts(current_user.id, current_vault.id);
 
                 if(!show_passwords)
-                    printAccountTable(accounts, show_passwords, "");
+                    printAccountTablePlaintextPasswords(accounts, show_passwords);
                 std::cout << '[' << message << "]\n";
                 message = "";
 
@@ -393,7 +420,7 @@ void App::run() {
                     std::getline(std::cin, password_input);
                     if (current_vault.validateMasterPassword(password_input)) {
                         show_passwords = true;
-                        printAccountTable(accounts, show_passwords, password_input);
+                        printAccountTablePlaintextPasswords(accounts, show_passwords);
                         break;
                     } else message = "Invalid password! Please try again!";
                 } else if ((choice == 'H' || choice == 'h') && !accounts.empty() && show_passwords) {
@@ -412,9 +439,11 @@ void App::run() {
                     std::cout << "Enter account password: ";
                     std::getline(std::cin, new_password);
 
+//                    Account new_account(current_user.id, current_vault.id, new_name,
+//                                        new_login, current_vault.createNewPassword(new_password));
                     Account new_account(current_user.id, current_vault.id, new_name,
-                                        new_login, current_vault.createNewPassword(new_password));
-                    new_account.writeToBin();
+                                        new_login, new_password);
+                    new_account.writeToBin_plaintext();
                     accounts.emplace_back(new_account);
                     break;
 

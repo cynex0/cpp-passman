@@ -4,8 +4,6 @@
 #include <openssl/sha.h>
 #include <stdexcept>
 #include <cstring>
-#include <fstream>
-#include <iostream>
 
 /**
  * @brief Constructor for the Password class.
