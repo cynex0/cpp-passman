@@ -7,6 +7,7 @@ A simple password manager project written in C++.
 
 The encryption/decryption functionality is implemented and works correctly on branch dev-menu, 
 but only in readTest() & writeTest() functions (main.cpp). Implementation was not suitable for binary file storage and produced inconsistent behaviour.
+This is to be fixed at a later time.
 
 ## Table of Contents
 
