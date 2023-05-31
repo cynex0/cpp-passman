@@ -365,7 +365,7 @@ void App::run() {
                     std::string sl_buf;
                     std::cout << "Enter desired security level\n(0-20, 10 recommended):";
                     std::getline(std::cin, sl_buf);
-                    sl = stoul(sl_buf);
+                    sl = static_cast<unsigned short>(stoul(sl_buf));
                     if (sl > 20) {
                         message = "Invalid security level! Please try again!";
                         break;
