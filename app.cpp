@@ -1,5 +1,6 @@
 #include "app.h"
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <cstdlib>
 #include <filesystem>
