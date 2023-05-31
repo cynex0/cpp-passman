@@ -77,7 +77,7 @@ To build and run Passman, follow these steps:
     ```shell
     cmake --build .
     ```
-   
+The built executable 'cpp_passman' will be located in .../cpp-passman/build/Debug
 
 ## Usage
 After running the password manager, you can interact with it using the provided command-line interface. 
