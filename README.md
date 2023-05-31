@@ -29,7 +29,7 @@ The password manager uses strong encryption algorithms to ensure the security of
 - Creating multiple account entries for each vault
 - Adjustable protection level within a vault
 - Delete all user data
-- Password encryption
+- Password encryption (temprorarily disabled)
 - Vault master password validation
 - List all stored passwords
 
@@ -42,6 +42,11 @@ Recommended version: **3.1**
 For installation instructions refer to OpenSSL repository: https://github.com/openssl/openssl
 
 Installers for Windows available here: https://slproweb.com/products/Win32OpenSSL.html :wink:
+
+On Linux, the correct version can be installed using:
+   ```shell
+   sudo apt-get install libssl-dev
+   ```
 
 You will also need:
 - A C++ compiler (e.g., GCC or Clang)
