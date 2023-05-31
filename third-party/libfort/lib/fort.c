@@ -39,7 +39,6 @@ SOFTWARE.
 #define FORT_IMPL_H
 
 #if defined(_MSC_VER)
-#define _CRT_SECURE_NO_WARNINGS /* To disable warnings for unsafe functions */
 #pragma warning(disable : 4267)
 #pragma warning(disable : 4245)
 #endif
