@@ -15,6 +15,8 @@ This is to be fixed at a later time.
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Documentation](#documentation)
+
 
 ## Introduction
 
@@ -85,3 +87,6 @@ The built executable 'cpp_passman' will be located in .../cpp-passman/build/Debu
 ## Usage
 After running the password manager, you can interact with it using the provided command-line interface. 
 The program will guide you through the available options and prompt for necessary inputs.
+
+## Documentation
+The documentation is available here: https://cynex0.github.io/cpp-passman/html/index.html
