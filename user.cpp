@@ -3,15 +3,14 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
-#include <cstring>
 
 namespace fs = std::filesystem;
 
 /**
  * @brief Default constructor for the User class.
- * Initializes a User object with default values for id, time_created, and time_last_accessed.
+ * Initializes a User object with default values for id, and time_last_accessed.
  */
-User::User(): id(), time_created(), time_last_accessed() {}
+User::User(): id(), time_last_accessed() {}
 
 /**
  * @brief Constructor for the User class.
@@ -122,13 +121,12 @@ void User::updateTimeLastAccessed() {
  * @return A C-style string representing the last access time of the user.
  */
 char* User::getTimeLastAccessed() {
-    struct tm timeinfo{};
-    localtime_s(&timeinfo, &time_last_accessed);
+    struct tm* timeinfo = std::localtime(&time_last_accessed);
 
     const int bufferSize = 26; // Length of the time string returned by asctime_s
     char* buffer = new char[bufferSize]; // buffer to store the time string
 
-    asctime_s(buffer, bufferSize, &timeinfo);
+    buffer = std::asctime(timeinfo);
     return buffer;
 }
 
@@ -139,13 +137,12 @@ char* User::getTimeLastAccessed() {
  * @return A C-style string representing the creation time of the user.
  */
 char* User::getTimeCreated() {
-    struct tm timeinfo{};
-    localtime_s(&timeinfo, &time_last_accessed);
+    struct tm* timeinfo = std::localtime(&time_created);
 
     const int bufferSize = 26; // Length of the time string returned by asctime_s
     char* buffer = new char[bufferSize]; // buffer to store the time string
 
-    asctime_s(buffer, bufferSize, &timeinfo);
+    buffer = std::asctime(timeinfo);
     return buffer;
 }
 

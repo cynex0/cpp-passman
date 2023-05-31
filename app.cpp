@@ -251,7 +251,7 @@ void App::run() {
                     current_user = new_user;
                     current_user.updateTimeLastAccessed();
 
-                    message = "Welcome, " + current_user.name + "!\n";
+                    message = "Welcome, " + current_user.name + "!";
                     state = MenuState::vault_list;
                     break;
 
@@ -354,6 +354,7 @@ void App::run() {
 
                 } else if (choice == 'R' || choice == 'r') {
                     state = MenuState::user_login; // Return to the previous stage
+                    users = readUsers();
                     break;
 
                 } else if (choice == 'Q' || choice == 'q') {
@@ -418,6 +419,7 @@ void App::run() {
 
                 } else if (choice == 'R' || choice == 'r') {
                     state = MenuState::user_login; // Return to the previous stage
+                    users = readUsers();
                     break;
 
                 } else if (choice == 'Q' || choice == 'q') {
