@@ -35,18 +35,16 @@ The password manager uses strong encryption algorithms to ensure the security of
 
 ## Installation
 ### Prerequisites
-**__This project uses OpenSSL. Make sure OpenSSL is installed on your system before running Passman.__**
+**__This project uses OpenSSL. Make sure OpenSSL is installed on your system before running Passman.__** Recommended version: **3.1**
 
-Recommended version: **3.1**
+Installers for __Windows__ available here: https://slproweb.com/products/Win32OpenSSL.html :wink:
 
-For installation instructions refer to OpenSSL repository: https://github.com/openssl/openssl
-
-Installers for Windows available here: https://slproweb.com/products/Win32OpenSSL.html :wink:
-
-On Linux, the correct version can be installed using:
+On __Linux__, the correct version of OpenSSL can be installed using:
    ```shell
    sudo apt-get install libssl-dev
    ```
+
+For further installation instructions please refer to OpenSSL repository: https://github.com/openssl/openssl
 
 You will also need:
 - A C++ compiler (e.g., GCC or Clang)
