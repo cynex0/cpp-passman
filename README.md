@@ -45,6 +45,8 @@ On __Linux__, the correct version of OpenSSL can be installed using:
    sudo apt-get install libssl-dev
    ```
 
+**Note that any previously installed version using __sudo apt-get install openssl__ should be uninstalled**
+
 For further installation instructions please refer to OpenSSL repository: https://github.com/openssl/openssl
 
 You will also need:
