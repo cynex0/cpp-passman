@@ -275,6 +275,7 @@ void App::run() {
                     User new_user(new_user_name);
                     new_user.writeToBin();
                     users.emplace_back(new_user);
+                    if (!vaults.empty()) vaults.clear();
 
                     current_user = new_user;
                     current_user.updateTimeLastAccessed();
