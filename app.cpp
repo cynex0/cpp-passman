@@ -165,33 +165,6 @@ void App::printVaultTable(std::vector<Vault> &vaults) {
  *
  * @param accounts         A reference to a vector of Account objects.
  * @param show_passwords   A boolean indicating whether to display the account passwords or mask them.
- * @param master_password  The master password used for decrypting the account passwords (required if show_passwords is true).
- *
- * The function prints a table with the following columns:
- *   - Name: The name of the account.
- *   - Login: The login username for the account.
- *   - Password: The password for the account. If show_passwords is true, the actual password is displayed.
- *               Otherwise, the password is masked with asterisks ("********").
- */
-void App::printAccountTable(std::vector<Account> &accounts, bool show_passwords, const std::string& master_password) {
-    fort::char_table table;
-    table << fort::header << "Name" << "Login" << "Password" << fort::endr;
-    for (auto acc : accounts){
-        std::string password;
-        if (show_passwords){
-            password = acc.getDecryptedPassword(master_password.c_str(), master_password.size());
-        }
-        else password = "********";
-        table << acc.name << acc.login << password << fort::endr;
-    }
-    std::cout << table.to_string() << std::endl;
-}
-
-/**
- * Prints a formatted table displaying information about each account.
- *
- * @param accounts         A reference to a vector of Account objects.
- * @param show_passwords   A boolean indicating whether to display the account passwords or mask them.
  *
  * The function prints a table with the following columns:
  *   - Name: The name of the account.

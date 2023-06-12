@@ -123,7 +123,7 @@ void User::updateTimeLastAccessed() {
 char* User::getTimeLastAccessed() {
     struct tm* timeinfo = std::localtime(&time_last_accessed);
 
-    const int bufferSize = 26; // Length of the time string returned by asctime_s
+    const int bufferSize = 26; // Length of the time string returned by asctime
     char* buffer = new char[bufferSize]; // buffer to store the time string
 
     buffer = std::asctime(timeinfo);

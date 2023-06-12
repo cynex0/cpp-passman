@@ -55,19 +55,34 @@ Vault::Vault(unsigned int id_, unsigned int user_id_):
  *       sets the iteration count to 0.
  */
 Vault::Vault(unsigned int user_id_, std::string name_, unsigned short sl, const std::string& pass):
-    id(0),
-    name(std::move(name_)),
-    security_level(sl),
-    iteration_count((security_level > 0) ? 1000 * int(pow(2, security_level - 1)) : 0),
-    masterPassword(),
-    masterPasswordPlaintext(pass)
+        id(0),
+        name(std::move(name_)),
+        security_level(sl),
+        iteration_count((security_level > 0) ? 1000 * int(pow(2, security_level - 1)) : 0),
+        masterPasswordPlaintext(pass)
 {
     RAND_bytes(reinterpret_cast<unsigned char*>(&id), sizeof(id));
+    RAND_bytes(saltBytes, SALT_LENGTH);
 
     dir_path = "data/" + std::to_string(user_id_) + "/" + std::to_string(id);
     fs::create_directory(dir_path);
 
-    masterPassword.deriveKey(pass.c_str(), pass.size());
+    this->deriveKey(pass.c_str(), pass.size(), this->key);
+}
+
+/**
+ * @brief Derives the encryption key using the provided plaintext and key derivation parameters.
+ * The derived key is stored in the specified output buffer.
+ * Uses the PKCS5_PBKDF2_HMAC_SHA1 function for key derivation.
+ *
+ * @param plaintext A pointer to the plaintext used for key derivation.
+ * @param plaintext_len The length of the plaintext.
+ * @param out A pointer to the output buffer to store the derived key.
+ */
+void Vault::deriveKey(const char *plaintext, size_t plaintext_len, unsigned char *out) {
+    PKCS5_PBKDF2_HMAC_SHA1(plaintext, static_cast<int>(plaintext_len),
+                           saltBytes, SALT_LENGTH,
+                           iteration_count, KEY_LENGTH, out);
 }
 
 /**
@@ -91,8 +106,8 @@ void Vault::writeToBin() {
     const auto name_size = static_cast<uint8_t>(name.size());
     ofs.write(reinterpret_cast<const char *>(&name_size), 1);
     ofs.write(name.c_str(), name_size);
-    ofs.write(reinterpret_cast<const char *>(masterPassword.key), Password::KEY_LENGTH);
-    ofs.write(reinterpret_cast<const char *>(masterPassword.saltBytes), Password::SALT_LENGTH);
+    ofs.write(reinterpret_cast<const char *>(key), KEY_LENGTH);
+    ofs.write(reinterpret_cast<const char *>(saltBytes), SALT_LENGTH);
     ofs.close();
 }
 
@@ -116,33 +131,13 @@ void Vault::readFromBin() {
     name = buffer;
     delete []buffer;
 
-    unsigned char readKey[Password::KEY_LENGTH];
-    ifs.read(reinterpret_cast<char *>(readKey), Password::KEY_LENGTH);
+    ifs.read(reinterpret_cast<char *>(this->key), KEY_LENGTH);
 
-    unsigned char readSalt[Password::SALT_LENGTH];
-    ifs.read(reinterpret_cast<char *>(readSalt), Password::SALT_LENGTH);
+    ifs.read(reinterpret_cast<char *>(this->saltBytes), SALT_LENGTH);
 
     iteration_count = (security_level > 0) ? 1000 * int(pow(2, security_level - 1)) : 0;
-    masterPassword = Password(Password::DEFAULT_ITERATION_COUNT, readKey, readSalt);
 
     ifs.close();
-}
-
-/**
- * Reads the vault data from a binary file.
- *
- * The function reads the vault data from the binary file "vaultData.vlt" located in the directory path of the vault.
- * It reads and assigns the ID, security level, name, master password key, and salt to the corresponding vault properties.
- *
- * Note: The file is assumed to have a header field "VLT" in ASCII to identify the file.
- *
- * @throws std::runtime_error if an error occurs while reading the file.
-*/
-Password Vault::createNewPassword(const std::string& password_plaintext) {
-    Password password(iteration_count);
-    password.deriveKey(masterPasswordPlaintext.c_str(), masterPasswordPlaintext.size());
-    password.encrypt(password_plaintext.c_str(), password_plaintext.size());
-    return password;
 }
 
 std::ostream &operator<<(std::ostream &os, const Vault &v) {
@@ -175,5 +170,7 @@ unsigned int Vault::getAccountCount() {
  * @return `true` if the provided password is valid and matches the master password, `false` otherwise.
 */
 bool Vault::validateMasterPassword(const std::string &pass) {
-    return masterPassword.validatePassword(pass);
+    unsigned char inputKey[KEY_LENGTH];
+    this->deriveKey(pass.c_str(), pass.size(), inputKey);
+    return std::equal(std::begin(inputKey), std::end(inputKey), std::begin(key));
 }

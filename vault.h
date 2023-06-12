@@ -1,7 +1,6 @@
 #ifndef CPP_PASSMAN_VAULT_H
 #define CPP_PASSMAN_VAULT_H
 #include <string>
-#include "password.h"
 
 class Vault {
 public:
@@ -12,7 +11,6 @@ public:
     unsigned int id;
     void writeToBin();
     void readFromBin();
-    Password createNewPassword(const std::string& password_plaintext);
     friend std::ostream& operator<<(std::ostream& os, const Vault& v);
     unsigned int getAccountCount();
 
@@ -21,9 +19,17 @@ public:
 
 private:
     int iteration_count;
-    Password masterPassword;
     std::string masterPasswordPlaintext;
     std::string dir_path;
+
+    static const uint8_t KEY_LENGTH = 32;  // 256 bits
+    static const uint8_t IV_LENGTH = 16;   // 128 bits
+    static const uint8_t SALT_LENGTH = 8;  // 64 bits
+    unsigned char key[KEY_LENGTH];
+    unsigned char saltBytes[SALT_LENGTH];
+    unsigned char iv[IV_LENGTH];
+
+    void deriveKey(const char *plaintext, size_t plaintext_len, unsigned char* out);
 };
 
 #endif //CPP_PASSMAN_VAULT_H

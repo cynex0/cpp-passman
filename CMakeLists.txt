@@ -16,6 +16,6 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories("third-party/libfort/lib")
 add_subdirectory(third-party/libfort)
 
-add_executable(cpp_passman main.cpp user.cpp user.h vault.cpp vault.h account.cpp account.h password.cpp password.h app.cpp app.h)
+add_executable(cpp_passman main.cpp user.cpp user.h vault.cpp vault.h account.cpp account.h app.cpp app.h)
 
 target_link_libraries(cpp_passman ${OPENSSL_LIBRARIES} fort)
