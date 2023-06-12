@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
  *   - security_level: The security level of the vault (default constructed).
  *   - iteration_count: The iteration count for cryptographic operations in the vault (default constructed).
  */
-Vault::Vault(): id(), security_level(), iteration_count() {}
+Vault::Vault(): id(), iteration_count(DEFAULT_ITERATION_COUNT) {}
 
 /**
  * Constructs a new instance of the Vault class with the specified ID and user ID for reading from binfile.
@@ -29,8 +29,7 @@ Vault::Vault(): id(), security_level(), iteration_count() {}
  */
 Vault::Vault(unsigned int id_, unsigned int user_id_):
     id(id_),
-    security_level(0),
-    iteration_count(0)
+    iteration_count(DEFAULT_ITERATION_COUNT)
 {
     dir_path = "data/" + std::to_string(user_id_) + "/" + std::to_string(id);
     readFromBin();
@@ -41,7 +40,6 @@ Vault::Vault(unsigned int id_, unsigned int user_id_):
  *
  * @param user_id_      The ID of the user associated with the vault.
  * @param name_         The name of the vault.
- * @param sl            The security level of the vault.
  * @param pass          The master password for the vault.
  *
  * The constructor initializes a Vault object with the provided user ID, name, security level, and master password.
@@ -54,11 +52,10 @@ Vault::Vault(unsigned int id_, unsigned int user_id_):
  *       1000 times 2 raised to the power of (security level - 1) if the security level is greater than 0; otherwise, it
  *       sets the iteration count to 0.
  */
-Vault::Vault(unsigned int user_id_, std::string name_, unsigned short sl, const std::string& pass):
+Vault::Vault(unsigned int user_id_, std::string name_, const std::string& pass):
         id(0),
         name(std::move(name_)),
-        security_level(sl),
-        iteration_count((security_level > 0) ? 1000 * int(pow(2, security_level - 1)) : 0),
+        iteration_count(DEFAULT_ITERATION_COUNT),
         masterPasswordPlaintext(pass)
 {
     RAND_bytes(reinterpret_cast<unsigned char*>(&id), sizeof(id));
@@ -102,7 +99,6 @@ void Vault::writeToBin() {
 
     ofs.write("VLT", 3); // The header field to identify the file is `VLT` in ASCII
     ofs.write(reinterpret_cast<const char *>(&id), 4);
-    ofs.write(reinterpret_cast<const char *>(&security_level), 2);
     const auto name_size = static_cast<uint8_t>(name.size());
     ofs.write(reinterpret_cast<const char *>(&name_size), 1);
     ofs.write(name.c_str(), name_size);
@@ -121,7 +117,6 @@ void Vault::readFromBin() {
     ifs.read(mg_str, 3);
 
     ifs.read(reinterpret_cast<char *>(&id), 4);
-    ifs.read(reinterpret_cast<char *>(&security_level), 2);
 
     auto name_size = static_cast<uint8_t>(name.size());
     ifs.read(reinterpret_cast<char *>(&name_size), 1);
@@ -134,8 +129,6 @@ void Vault::readFromBin() {
     ifs.read(reinterpret_cast<char *>(this->key), KEY_LENGTH);
 
     ifs.read(reinterpret_cast<char *>(this->saltBytes), SALT_LENGTH);
-
-    iteration_count = (security_level > 0) ? 1000 * int(pow(2, security_level - 1)) : 0;
 
     ifs.close();
 }

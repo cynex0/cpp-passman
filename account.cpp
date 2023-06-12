@@ -137,7 +137,6 @@ std::ostream& operator<<(std::ostream &os, Account &acc) {
     return os;
 }
 
-
 /**
  * @brief Gets the plaintext password.
  * This is a temporary function to replace encryption functionality

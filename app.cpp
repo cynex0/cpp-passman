@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 #endif
 
 /**
- * The constructor for the App class.
+ * @brief The constructor for the App class.
  * Initializes the isRunning flag and sets the initial state to MenuState::user_login.
  * Creates a "data" directory if it doesn't exist.
  */
@@ -24,7 +24,7 @@ App::App(): isRunning(true), state(MenuState::user_login) {
 }
 
 /**
- * Reads a single character input from the user.
+ * @brief Reads a single character input from the user.
  * Ignores any remaining characters in the input buffer.
  *
  * @return The character entered by the user.
@@ -37,7 +37,7 @@ char App::getUserChoice() {
 }
 
 /**
- * Allows the user to select an item from a vector by entering its index.
+ * @brief Allows the user to select an item from a vector by entering its index.
  *
  * @tparam T The type of elements in the vector.
  * @param v The vector from which to select an item.
@@ -62,7 +62,7 @@ template <typename T> unsigned int App::selectFromVector(const std::vector<T> v)
 }
 
 /**
- * Reads and returns a vector of User objects from the "data" directory.
+ * @brief Reads and returns a vector of User objects from the "data" directory.
  *
  * @return The vector of User objects.
  */
@@ -78,7 +78,7 @@ std::vector<User> App::readUsers() {
 }
 
 /**
- * Reads and returns a vector of Vault objects for a given user ID.
+ * @brief Reads and returns a vector of Vault objects for a given user ID.
  *
  * @param uid The ID of the user.
  * @return The vector of Vault objects.
@@ -95,7 +95,7 @@ std::vector<Vault> App::readVaults(unsigned int uid) {
 }
 
 /**
- * Reads and returns a vector of Account objects for a given user ID and vault ID.
+ * @brief Reads and returns a vector of Account objects for a given user ID and vault ID.
  *
  * @param uid The ID of the user.
  * @param vid The ID of the vault.
@@ -114,7 +114,7 @@ std::vector<Account> App::readAccounts(unsigned int uid, unsigned int vid) {
 }
 
 /**
- * Prints a formatted table displaying information about each user.
+ * @brief Prints a formatted table displaying information about each user.
  *
  * @param users A reference to a vector of User objects.
  *
@@ -155,13 +155,13 @@ void App::printVaultTable(std::vector<Vault> &vaults) {
 
     for (auto it = vaults.begin(); it != vaults.end(); ++it) {
         auto index = std::distance(vaults.begin(), it);
-        table << index << it->name << it->security_level << it->getAccountCount() << fort::endr;
+        table << index << it->name << it->getAccountCount() << fort::endr;
     }
     std::cout << table.to_string();
 }
 
 /**
- * Prints a formatted table displaying information about each account.
+ * @brief Prints a formatted table displaying information about each account.
  *
  * @param accounts         A reference to a vector of Account objects.
  * @param show_passwords   A boolean indicating whether to display the account passwords or mask them.
@@ -188,7 +188,7 @@ void App::printAccountTablePlaintextPasswords(std::vector<Account> &accounts, bo
 }
 
 /**
- * Displays a menu and handles user interaction based on the current state.
+ * @brief Displays a menu and handles user interaction based on the current state.
  *
  * The function presents different options and performs corresponding actions based on the current state.
  * It uses vectors to store User, Vault, and Account objects, as well as variables to track the state and display messages.
@@ -213,6 +213,7 @@ void App::run() {
     bool show_passwords = false;
 
     while(isRunning) {
+        system(CLEAR_COMMAND);
         switch (state) {
             case MenuState::user_login: {
                 // read all stored users
@@ -335,17 +336,7 @@ void App::run() {
                     std::cout << "Enter desired master password: ";
                     std::getline(std::cin, new_password);
 
-                    unsigned short sl;
-                    std::string sl_buf;
-                    std::cout << "Enter desired security level\n(0-20, 10 recommended):";
-                    std::getline(std::cin, sl_buf);
-                    sl = static_cast<unsigned short>(stoul(sl_buf));
-                    if (sl > 20) {
-                        message = "Invalid security level! Please try again!";
-                        break;
-                    }
-
-                    Vault new_vault(current_user.id, new_vault_name, sl, new_password);
+                    Vault new_vault(current_user.id, new_vault_name, new_password);
                     new_vault.writeToBin();
                     vaults.emplace_back(new_vault);
 
