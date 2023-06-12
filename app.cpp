@@ -151,7 +151,7 @@ void App::printUserTable(std::vector<User> &users) {
 void App::printVaultTable(std::vector<Vault> &vaults) {
     fort::char_table table;
     // header
-    table << fort::header << "[[N]]" << "Name" << "Security level" << "Stored Accounts" << fort::endr;
+    table << fort::header << "[[N]]" << "Name" << "Stored Accounts" << fort::endr;
 
     for (auto it = vaults.begin(); it != vaults.end(); ++it) {
         auto index = std::distance(vaults.begin(), it);
@@ -173,7 +173,7 @@ void App::printVaultTable(std::vector<Vault> &vaults) {
  *               Otherwise, the password is masked with asterisks ("********").
  * This is a temporary function that uses plaintext password storage. To be removed when encryption works.
  */
-void App::printAccountTablePlaintextPasswords(std::vector<Account> &accounts, bool show_passwords) {
+void App::printAccountTable(std::vector<Account> &accounts, bool show_passwords) {
     fort::char_table table;
     table << fort::header << "Name" << "Login" << "Password" << fort::endr;
     for (auto acc : accounts){
@@ -213,7 +213,6 @@ void App::run() {
     bool show_passwords = false;
 
     while(isRunning) {
-        system(CLEAR_COMMAND);
         switch (state) {
             case MenuState::user_login: {
                 // read all stored users
@@ -258,7 +257,7 @@ void App::run() {
                     state = MenuState::vault_list;
                     break;
 
-                } else if (choice == 'O' || choice == 'o') {
+                } else if ((choice == 'O' || choice == 'o' ) && !users.empty()) {
                     int sort_field = 0;
                     std::cout << "Sort by:";
                     std::cout << "\t1: Name" << std::endl;
@@ -283,7 +282,7 @@ void App::run() {
                             message = "Invalid sort field! Please try again!";
                     }
 
-                } else if (choice == 'D' || choice == 'd') {
+                } else if ((choice == 'D' || choice == 'd') && !users.empty()) {
                     unsigned int delete_n = selectFromVector(users);
                     fs::remove_all("data/" + std::to_string(users[delete_n].id));
                     users.erase(users.begin()+delete_n);
@@ -362,8 +361,8 @@ void App::run() {
             case MenuState::account_list: {
                 accounts = readAccounts(current_user.id, current_vault.id);
 
-                if(!show_passwords)
-                    printAccountTablePlaintextPasswords(accounts, show_passwords);
+                printAccountTable(accounts, show_passwords);
+
                 std::cout << '[' << message << "]\n";
                 message = "";
 
@@ -385,8 +384,6 @@ void App::run() {
                     std::getline(std::cin, password_input);
                     if (current_vault.validateMasterPassword(password_input)) {
                         show_passwords = true;
-                        printAccountTablePlaintextPasswords(accounts, show_passwords);
-                        break;
                     } else message = "Invalid password! Please try again!";
                 } else if ((choice == 'H' || choice == 'h') && !accounts.empty() && show_passwords) {
                     show_passwords = false;
@@ -404,8 +401,6 @@ void App::run() {
                     std::cout << "Enter account password: ";
                     std::getline(std::cin, new_password);
 
-//                    Account new_account(current_user.id, current_vault.id, new_name,
-//                                        new_login, current_vault.createNewPassword(new_password));
                     Account new_account(current_user.id, current_vault.id, new_name,
                                         new_login, new_password);
                     new_account.writeToBin_plaintext();
@@ -427,6 +422,7 @@ void App::run() {
                 break; // case
             }
         }
+        system(CLEAR_COMMAND);
     }
 }
 
