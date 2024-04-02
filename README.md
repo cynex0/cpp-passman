@@ -89,4 +89,4 @@ After running the password manager, you can interact with it using the provided 
 The program will guide you through the available options and prompt for necessary inputs.
 
 ## Documentation
-The documentation is available here: https://cynex0.github.io/cpp-passman/html/index.html
+The documentation is available here: https://cynex0.github.io/cpp-passman/
